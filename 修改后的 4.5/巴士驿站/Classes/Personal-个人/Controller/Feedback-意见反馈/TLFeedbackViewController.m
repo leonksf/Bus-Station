@@ -333,7 +333,7 @@
 #pragma mark 超过300字不能输入
 -(BOOL)wordLimit:(UITextView *)text{
     if (text.text.length < 300) {
-        NSLog(@"%ld",(unsigned long)text.text.length);
+        NSLog(@"%ld",text.text.length);
         self.textView.editable = YES;
         
     }
@@ -341,7 +341,7 @@
         self.textView.editable = NO;
         
     }
-    return YES;
+    return nil;
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{

@@ -7,16 +7,15 @@
 //
 
 #import "TLHomePageViewController.h"
-//#import "XRCarouselView.h"
+#import "XRCarouselView.h"
 #import "Masonry.h"
+#import "TLSiteTableViewController.h"
 #import "TLSearchTableViewController.h"
-#import "AddressPickerDemo.h"
-#import "NiceCalendarController.h"
-#import "TranstionScrollView.h"
-@interface TLHomePageViewController ()//<XRCarouselViewDelegate>
+
+@interface TLHomePageViewController ()<XRCarouselViewDelegate>
 
 //顶部的动态滚动广告
-//@property(nonatomic,strong)TranstionScrollView * vi;
+@property(nonatomic,strong)XRCarouselView *carouselView;
 
 //出发地
 @property(nonatomic,strong)UILabel *startLabel;
@@ -48,96 +47,71 @@
 @property(nonatomic,strong)NSMutableArray *dateList;
 
 @property(nonatomic,assign)NSInteger number;
-
-//@property(nonatomic,weak)UITableView *tableView;
 @end
 
 @implementation TLHomePageViewController
 
-- (void)viewDidLoad {
-//    self.tabBarItem.tag = 1;
-//    NSLog(@"%ld",(long)self.tabBarItem.tag);
-    [super viewDidLoad];
-    //  设置CGRectZero从导航栏下开始计算
-    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
-        self.edgesForExtendedLayout = UIRectEdgeNone;
+-(NSMutableArray *)dateList
+{
+    if (!_dateList) {
+        _dateList = [NSMutableArray arrayWithObjects:@"5月20日周五",@"5月21日周六",@"5月22日周日",@"5月23日周一",@"5月24日周二",@"5月25日周三",@"5月26日周四",@"5月27日周五",@"5月28日周六",@"5月29日周日",@"5月30日周一",@"5月31日周二", nil];
     }
+    return _dateList;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
     self.navigationItem.title = @"首页";
-   //  self.navigationController.navigationBar.translucent = YES;
- //    [self addTableView];
-    //  self.automaticallyAdjustsScrollViewInsets = NO;
-    
-        [self addScrlllView];
     
     self.view.backgroundColor = [UIColor whiteColor];
     
     self.number = 0;
-      [self setAllChildController];
+    /**
+     *  设置添加广告滚动视图
+     */
+    //把广告滚动的图片放到数组中保存
+    NSArray *arr = @[[UIImage imageNamed:@"1"],[UIImage imageNamed:@"2"],[UIImage imageNamed:@"3"]];
+    //NSArray *arr = @[@"1",@"2",@"3"];
+    self.carouselView = [[XRCarouselView alloc] init];
+    self.carouselView.frame = CGRectMake(0, 65, [UIScreen mainScreen].bounds.size.width, 100);
+    self.carouselView.imageArray = arr;
+    //用代理处理图片点击
+    self.carouselView.delegate = self;
     
+    //设置每张图片的停留时间，默认值为5s，最少为2s
+    _carouselView.time = 2;
     
-    NSLog(@"is here");
-   }
--(void)addScrlllView{
-   ;
-    TranstionScrollView * ScrollView =[[TranstionScrollView alloc]initWithFrame:CGRectMake(0,0,self.view.bounds.size.width, 120) placeholder:[UIImage imageNamed:@"default"]];
-    [self.view addSubview:ScrollView];
-   // self.tableView.tableHeaderView = ScrollView;
-   // ScrollView.backgroundColor = [UIColor blueColor];
-    [ScrollView setSelectImageBlock:^(NSInteger index){
-        NSLog(@"%ld",(long)index);
-    }];
-        NSArray * array = @[@"1",@"2",@"3",@"img_05"];
-        [ScrollView setImageArrayWithArray:array];
+    _carouselView.pagePosition = PositionBottomRight;
     
-  //  self.navigationController.navigationBar.translucent = YES;
-
+    [self.view addSubview:self.carouselView];
+    
+    [self setAllChildController];
+    
 }
-//-(void)addTableView{
-//    UITableView *tableView = [[UITableView alloc]initWithFrame:self.view.bounds style:UITableViewStylePlain];
-//    tableView.backgroundColor = [UIColor redColor];
-//    self.tableView = tableView;
-//    //  让分割线消失
-//      self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-//   // [self.view addSubview:tableView];
-//     [self.view insertSubview:self.tableView atIndex:0];
-//}
+
 /**
  *  设置添加所有控件的函数
  */
 -(void)setAllChildController
 {
-    //获取当前日期
-    NSDateFormatter *dataFormatter = [[NSDateFormatter alloc] init];
-    [dataFormatter setDateFormat:@"YYYY年MM月dd日"];
-    NSString *strDate = [dataFormatter stringFromDate:[NSDate date]];
-//    //获取星期几
-//    NSDateComponents *componets = [[NSCalendar autoupdatingCurrentCalendar] components:NSCalendarUnitWeekday fromDate:[NSDate date]];
-//    NSInteger weekday = [componets weekday];//a就是星期几，1代表星期日，2代表星期一，后面依次
-//    NSArray *weekArray = @[@"星期日",@"星期一",@"星期二",@"星期三",@"星期四",@"星期五",@"星期六"];
-//    NSString *weekStr = weekArray[weekday-1];
-//    NSString *week = [strDate stringByAppendingString:[@" " stringByAppendingString: weekStr ]];
-//    
     self.startLabel = [[UILabel alloc] init];
     self.startLabel.text = @"初始地";
     self.startLabel.textAlignment = NSTextAlignmentCenter;
-    self.startLabel.font = [UIFont fontWithName:@"Arial Rounded MT Bold" size:20];
     [self.view addSubview:self.startLabel];
     
     self.destinationLabel = [[UILabel alloc] init];
     self.destinationLabel.text = @"目的地";
     self.destinationLabel.textAlignment = NSTextAlignmentCenter;
-     self.destinationLabel.font = [UIFont fontWithName:@"Arial Rounded MT Bold" size:20];
     [self.view addSubview:self.destinationLabel];
     
     self.startButton = [self setButton:self.startButton image:nil selectimage:nil str:@"北京市"];
-    self.startButton.titleLabel.font = [UIFont fontWithName:@"Arial Rounded MT Bold" size:25];
-    
+    self.startButton.font = [UIFont fontWithName:@"Arial Rounded MT Bold" size:25];
     [self.startButton addTarget:self action:@selector(startButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.startButton];
     
     self.destinationButton = [self setButton:self.destinationButton image:nil selectimage:nil str:@"上海市"];
-    self.destinationButton.titleLabel.font = [UIFont fontWithName:@"Arial Rounded MT Bold" size:25];
-    
+    self.destinationButton.font = [UIFont fontWithName:@"Arial Rounded MT Bold" size:25];
     [self.destinationButton addTarget:self action:@selector(destinationButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.destinationButton];
     
@@ -153,10 +127,8 @@
     [self.rightButton addTarget:self action:@selector(rightButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.rightButton];
     
-    self.dateButton = [self setButton:self.dateButton image:nil selectimage:nil str:strDate];
-    self.dateButton.titleLabel.font = [UIFont systemFontOfSize:18.0];
+    self.dateButton = [self setButton:self.dateButton image:nil selectimage:nil str:@"5月28日周六"];
     [self.view addSubview:self.dateButton];
-    [self.dateButton addTarget:self action:@selector(clickDataButton) forControlEvents:UIControlEventTouchUpInside];
     
     self.searchButton = [self setButton:self.searchButton image:nil selectimage:nil str:@"查询"];
     [self.searchButton setBackgroundImage:[UIImage imageNamed:@"login_btn_blue_nor"] forState:UIControlStateNormal];
@@ -167,14 +139,14 @@
     [self.view addSubview:self.searchButton];
     
     [self.startLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view).with.offset(145);
+        make.top.equalTo(self.carouselView.mas_bottom).with.offset(30);
         make.right.equalTo(self.destinationLabel.mas_left).with.offset(-100);
         make.bottom.equalTo(self.startButton.mas_top).with.offset(-30);
         make.left.equalTo(self.view.mas_left).with.offset(40);
         make.width.equalTo(self.destinationLabel);
     }];
     [self.destinationLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view).with.offset(145);
+        make.top.equalTo(self.carouselView.mas_bottom).with.offset(30);
         make.right.equalTo(self.view.mas_right).with.offset(-40);
         make.bottom.equalTo(self.destinationButton.mas_top).with.offset(-30);
         make.left.equalTo(self.startLabel.mas_right).with.offset(100);
@@ -189,9 +161,10 @@
         
     }];
     
+    
     [self.startButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.startLabel.mas_bottom).with.offset(30);
-        make.left.equalTo(self.view.mas_left).with.offset(15);
+        make.left.equalTo(self.view.mas_left).with.offset(20);
         make.right.equalTo(self.arrowImageView.mas_left).with.offset(-20);
         make.height.equalTo(@50);
         make.width.equalTo(self.destinationButton);
@@ -200,7 +173,7 @@
     [self.destinationButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.destinationLabel.mas_bottom).with.offset(30);
         make.left.equalTo(self.arrowImageView.mas_right).with.offset(20);
-        make.right.equalTo(self.view.mas_right).with.offset(-15);
+        make.right.equalTo(self.view.mas_right).with.offset(-20);
         make.height.equalTo(@50);
         make.width.equalTo(self.destinationButton);
     }];
@@ -236,6 +209,9 @@
     }];
     
 }
+
+
+
 /**
  *  自定义按钮创建函数
  *
@@ -257,28 +233,33 @@
     return button;
 }
 
+
+
+#pragma mark XRCarouselViewDelegate
+
 /**
- *  点击时间按钮
+ *  XRCarouselViewDelegate协议
+ *
+ *  @param carouselView 视图
+ *  @param index        第几张图片
  */
--(void)clickDataButton{
-    
-    NiceCalendarController *Calendar = [[NiceCalendarController alloc]init];
-    Calendar.DateBlock = ^(NSString *str){
-        //  date->string
-//        NSDateFormatter *format = [[NSDateFormatter alloc]init];
-//        [format setDateFormat:@"yyyy-MM-dd"];
-//        NSString *date = [format stringFromDate:str];
-    [self.dateButton setTitle:str forState:UIControlStateNormal];
-  
-    };
-    [self.navigationController pushViewController:Calendar animated:YES];
-}
+//- (void)carouselView:(XRCarouselView *)carouselView clickImageAtIndex:(NSInteger)index {
+//    NSLog(@"点击了第%ld张图片", index);
+//}
+
+//
+//- (void)didReceiveMemoryWarning {
+//    [super didReceiveMemoryWarning];
+//    // Dispose of any resources that can be recreated.
+//}
+
+
 /**
  *  出发地按钮响应的事件
  */
 -(void)startButtonPressed
 {
-    AddressPickerDemo *siteView = [[AddressPickerDemo alloc] init];
+    TLSiteTableViewController *siteView = [[TLSiteTableViewController alloc] init];
     siteView.siteBlock  = ^(NSString *str){
         [self.startButton setTitle:str forState:UIControlStateNormal];
     };
@@ -292,14 +273,11 @@
 
 -(void)destinationButtonPressed
 {
-    //TLSiteTableViewController *siteView = [[TLSiteTableViewController alloc] init];
-    AddressPickerDemo *siteView = [[AddressPickerDemo alloc] init];
-
+    TLSiteTableViewController *siteView = [[TLSiteTableViewController alloc] init];
     siteView.siteBlock  = ^(NSString *str){
-        [self.destinationButton setTitle:str forState:UIControlStateNormal];
+        [self.startButton setTitle:str forState:UIControlStateNormal];
     };
     
-//    [self.navigationController pushViewController:siteView animated:YES];
     [self.navigationController pushViewController:siteView animated:YES];
 }
 
@@ -313,60 +291,18 @@
 
 -(void)leftButtonPressed
 {
-        //获取当前日期
-        NSDateFormatter *dataFormatter = [[NSDateFormatter alloc] init];
-        [dataFormatter setDateFormat:@"YYYY年MM月dd日"];
-        NSString *strDate = [dataFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceNow:-(24*60*60)]];
-//        //获取星期几
-//        NSDateComponents *componets = [[NSCalendar autoupdatingCurrentCalendar] components:NSCalendarUnitWeekday fromDate:[NSDate date]];
-//        NSInteger weekday = [componets weekday];//a就是星期几，1代表星期日，2代表星期一，后面依次
-//        NSArray *weekArray = @[@"星期日",@"星期一",@"星期二",@"星期三",@"星期四",@"星期五",@"星期六"];
-//        NSString *weekStr = weekArray[weekday-2];
-//        NSString *week = [strDate stringByAppendingString:[@" " stringByAppendingString: weekStr ]];
-        NSLog(@"%@",strDate);
-        [self.dateButton setTitle:strDate forState:UIControlStateNormal];
-
-    
-//
-//    if (self.number>0) {
-//        self.number--;
-//        [self.dateButton setTitle:[self.dateList objectAtIndex:self.number] forState:UIControlStateNormal];
-//    }
+    if (self.number>0) {
+        self.number--;
+        [self.dateButton setTitle:[self.dateList objectAtIndex:self.number] forState:UIControlStateNormal];
+    }
     
 }
 
 -(void)rightButtonPressed
 {
-    //获取当前日期
-    NSDateFormatter *dataFormatter = [[NSDateFormatter alloc] init];
-    [dataFormatter setDateFormat:@"YYYY年MM月dd日"];
-    NSString *strDate = [dataFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceNow:+(24*60*60)]];
-    //获取星期几
-//    NSDateComponents *componets = [[NSCalendar autoupdatingCurrentCalendar] components:NSCalendarUnitWeekday fromDate:[NSDate date]];
-//    NSInteger weekday = [componets weekday];//a就是星期几，1代表星期日，2代表星期一，后面依次
-//    NSArray *weekArray = @[@"星期日",@"星期一",@"星期二",@"星期三",@"星期四",@"星期五",@"星期六"];
-//    NSString *weekStr = weekArray[weekday];
-//    NSString *week = [strDate stringByAppendingString:[@" " stringByAppendingString: weekStr ]];
-    NSLog(@"%@",strDate);
-    [self.dateButton setTitle:strDate forState:UIControlStateNormal];
-    
-
+    if (self.number<self.dateList.count-1) {
+        self.number++;
+        [self.dateButton setTitle:[self.dateList objectAtIndex:self.number] forState:UIControlStateNormal];
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @end

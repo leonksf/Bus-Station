@@ -14,7 +14,7 @@
 
 
 
-@interface TLAddPassengerTableViewController ()<TLAddPassengerTableViewControllerDelegate>
+@interface TLAddPassengerTableViewController ()//<TLAddPassengerTableViewControllerDelegate>
 //  添加按钮
 @property (nonatomic,strong) UIButton *addButton ;
 @property(nonatomic,weak)UITableViewCell *cell;  //  cell
@@ -209,7 +209,7 @@
                     
             }
     }
-    NSLog(@"%lu",(unsigned long)self.selectUsers.count);
+    NSLog(@"%d",self.selectUsers.count);
     [self.navigationController popViewControllerAnimated:YES];
     
 }

@@ -38,11 +38,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-   
-    //  设置CGRectZero从导航栏下开始计算
-    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
-        self.edgesForExtendedLayout = UIRectEdgeNone;
-    }
+    
 //    NSString *docPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
 //    NSString *file = [docPath stringByAppendingPathComponent:@"TLPasserger.data"];
 //    self.users = [NSKeyedUnarchiver unarchiveObjectWithFile:file];
@@ -71,7 +67,7 @@
         make.left.equalTo(self.view.mas_left);
         make.right.equalTo(self.view.mas_right);
         make.bottom.equalTo(self.view.mas_bottom).with.offset(-50);
-        make.top.equalTo(self.view.mas_top).with.offset(136);
+        make.top.equalTo(self.view.mas_top).with.offset(200);
     }];
 }
 
@@ -251,7 +247,7 @@
     TLWriteOrderView *writeView = [[TLWriteOrderView alloc]init];
     [self.view addSubview:writeView];
     [writeView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view).offset(0);
+        make.top.equalTo(self.view).offset(64);
         make.left.equalTo(self.view);
         make.right.equalTo(self.view);
         make.height.equalTo(@140);
